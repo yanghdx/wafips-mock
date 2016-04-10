@@ -37,9 +37,21 @@ router.get('/wafs/:id', function(req, res, next) {
                 console.log('id is %s', id);
                 var ret = {
                     id : id,
-                    site_ip : '1.1.1.1, 2.2.2.2/28, 3.3.3.3-5.5.5.5',
+                    service_type : 'TYPE_WAF_PLUS',
+                    name : 'waf_host',
+                    site_ip : '1.1.1.1, 2.2.2.2/24, 3.3.3.3-5.5.5.5',
                     site_domain : 'www.test.com',
-                    port : '80,443,8080-8090'
+                    port : '80,443,8080-8090',
+
+                    web_page_path : '',
+                    exclude_process : '',
+                    mon_url : '',
+
+                    database_ip : '',
+                    database_port : '',
+                    database_type : '',
+                    database_version : '',
+                    database_os_type : ''
                 };
                 res.json({result:true, wafs : ret});
             } else {
@@ -78,11 +90,11 @@ router.get('/ips/:id', function(req, res, next) {
                 console.log('id is %s', id);
                 var ret = {
                     id : id,
-                    site_ip : '1.1.1.1, 2.2.2.2/28, 3.3.3.3-5.5.5.5',
-                    site_domain : 'www.test.com',
-                    port : '80,443,8080-8090'
+                    name : 'ips_host',
+                    description : '',
+                    protected_object : []
                 };
-                res.json({result:true, wafs : ret});
+                res.json({result:true, ips : ret});
             } else {
                 res.json({result : false, errmsg : 'Request parameters : sign is incorrect.'});
             }
