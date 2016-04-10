@@ -11,9 +11,7 @@ function Token() {
 }
 util.inherits(Token, events.EventEmitter);
 
-Token.prototype.add = function(token) {
-    TOKEN_CACHE
-}
+
 /**
  * Clear token cache
  */
@@ -47,6 +45,10 @@ Token.prototype.putToken = function (token) {
                 }
             }, TIMEOUT);
 }
+/**
+ * Remove token
+ * @param token
+ */
 Token.prototype.removeToken = function(token) {
     var index = -1;
     for (var i= 0, len=TOKEN_CACHE.length; i<len; i++) {
@@ -60,6 +62,11 @@ Token.prototype.removeToken = function(token) {
         TOKEN_CACHE.splice(i, 1);
     }
 }
+/**
+ * Check token whether exist.
+ * @param token
+ * @returns {boolean}
+ */
 Token.prototype.hasToken = function(token) {
     var index = -1;
     for (var i= 0, len=TOKEN_CACHE.length; i<len; i++) {
@@ -71,7 +78,9 @@ Token.prototype.hasToken = function(token) {
     }
     return index > -1;
 }
-
+/**
+ * Print all token
+ */
 Token.prototype.showAll = function(){
     console.log(TOKEN_CACHE);
 }
