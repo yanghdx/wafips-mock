@@ -12,23 +12,22 @@ var threshold = 10 * 60, // 600s
 
 /* Get waf detail info*/
 router.get('/wafs/:id', function(req, res, next) {
-    var date = req.query.date || req.body.date;
-    var sign = req.query.sign || req.body.sign;
+    var date = req.query.date || req.body.date,
+        sign = req.query.sign || req.body.sign,
+        now  = Math.floor(Date.now() / 1000);
 
-    if (!date || !sign) {
-        res.json({result : false, errmsg : 'Request parameters : date or sign is null.'});
-    } else if ( !/^[0-9]{10}$/.test(date)){
-        res.json({result : false, errmsg : 'Request parameters : Date format is incorrect!'});
-    } else if (Math.abs(Math.floor(Date.now()/1000) - parseInt(date)) > threshold){
-        res.json({result : false, errmsg : 'The client and server time difference is more than 10 minutes.'});
-    } else if (!/[:]/.test(sign)) {
-        res.json({result : false, errmsg : 'Request parameters : sign format is incorrect.'});
+    //check date and sign
+    var r = checkDateAndSign(date, sign, now)
+    if (r !== true) {
+        res.json({result : false, serv_time : now, errmsg : r});
     } else {
         var arr = sign.split(':');
         if (arr[0] == USER) {
             var uri = '/api' + req.url.split('?')[0];
             console.log('uri is %s', uri);
-            var serv_sign = USER + ':' + crypto.createHash('md5').update(date + uri + USER + MD5_PASS, 'utf-8').digest('hex');
+
+            var serv_sign = USER + ':' +
+                crypto.createHash('md5').update(date + uri + USER + MD5_PASS, 'utf-8').digest('hex');
             console.log('server sign is: %s', serv_sign);
             console.log('client sign is: %s', sign);
 
@@ -55,33 +54,31 @@ router.get('/wafs/:id', function(req, res, next) {
                 };
                 res.json({result:true, wafs : ret});
             } else {
-                res.json({result : false, errmsg : 'Request parameters : sign is incorrect.'});
+                res.json({result : false, errmsg : 'sign error'});
             }
         } else {
-            res.json({result : false, errmsg : 'Request parameters : sign is incorrect.'});
+            res.json({result : false, errmsg : 'sign error'});
         }
     }
 });
 
 /* Get ips detail info*/
 router.get('/ips/:id', function(req, res, next) {
-    var date = req.query.date || req.body.date;
-    var sign = req.query.sign || req.body.sign;
+    var date = req.query.date || req.body.date,
+        sign = req.query.sign || req.body.sign,
+        now  = Math.floor(Date.now() / 1000);
 
-    if (!date || !sign) {
-        res.json({result : false, errmsg : 'Request parameters : date or sign is null.'});
-    } else if ( !/^[0-9]{10}$/.test(date)){
-        res.json({result : false, errmsg : 'Request parameters : Date format is incorrect!'});
-    } else if (Math.abs(Math.floor(Date.now()/1000) - parseInt(date)) > threshold){
-        res.json({result : false, errmsg : 'The client and server time difference is more than 10 minutes.'});
-    } else if (!/[:]/.test(sign)) {
-        res.json({result : false, errmsg : 'Request parameters : sign format is incorrect.'});
+    //check date and sign
+    var r = checkDateAndSign(date, sign, now)
+    if (r !== true) {
+        res.json({result : false, serv_time : now, errmsg : r});
     } else {
         var arr = sign.split(':');
         if (arr[0] == USER) {
             var uri = '/api' + req.url.split('?')[0];
             console.log('uri is %s', uri);
-            var serv_sign = USER + ':' + crypto.createHash('md5').update(date + uri + USER + MD5_PASS, 'utf-8').digest('hex');
+            var serv_sign = USER + ':' +
+                crypto.createHash('md5').update(date + uri + USER + MD5_PASS, 'utf-8').digest('hex');
             console.log('server sign is: %s', serv_sign);
             console.log('client sign is: %s', sign);
 
@@ -92,14 +89,14 @@ router.get('/ips/:id', function(req, res, next) {
                     id : id,
                     name : 'ips_host',
                     description : '',
-                    protected_object : []
+                    protected_object : ['device']
                 };
                 res.json({result:true, ips : ret});
             } else {
-                res.json({result : false, errmsg : 'Request parameters : sign is incorrect.'});
+                res.json({result : false, errmsg : 'sign error'});
             }
         } else {
-            res.json({result : false, errmsg : 'Request parameters : sign is incorrect.'});
+            res.json({result : false, errmsg : 'sign error'});
         }
     }
 });
@@ -110,5 +107,18 @@ router.get('/test', function(req, res, next) {
     res.json({test:list});
 });
 
+//check date and sign
+function checkDateAndSign(date, sign, now) {
+    if (!date || !sign) {
+        return 'date or sign is empty';
+    } else if ( !/^[0-9]{10}$/.test(date)){
+        return 'date format error';
+    } else if (Math.abs(now - parseInt(date)) > threshold){
+        return 'date check error';
+    } else if (!/[:]/.test(sign)) {
+        return 'sign format error.';
+    }
+    return true;
+}
 
 module.exports = router;
